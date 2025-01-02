@@ -4,22 +4,7 @@
  * @return {number[]}
  */
 var vowelStrings = function(words, queries) {
-    const checkedVowelStrings = words.map((word) => {
-        return checkVowelString(word);
-    });
-    
-    const ans = queries.map((range) => {
-        const [start, end] = range;
-    
-        return checkedVowelStrings.filter((vowelString, index) => {
-            return (index >= start && index <= end) && vowelString;
-        }).length;
-    });
 
-    return ans;
-};
-
-function checkVowelString(word) {
     const vowel = {
         a: true,
         e: true,
@@ -28,8 +13,21 @@ function checkVowelString(word) {
         u: true
     };
 
-    const startChar = word[0];
-    const endChar = word[word.length - 1];
+    const prefixSumResult = words.reduce((acc, cur, index) => {
+        const prevSumResult = acc[index - 1] ?? 0;
 
-    return vowel[startChar] && vowel[endChar];
-} 
+        acc.push(
+            vowel[cur[0]] && vowel[cur[cur.length - 1]] ? prevSumResult + 1 : prevSumResult
+        );
+
+        return acc;
+    }, []);
+    
+    const ans = queries.map((range) => {
+        const [start, end] = range;
+    
+        return prefixSumResult[end] - (prefixSumResult[start - 1] ?? 0);
+    });
+
+    return ans;
+};
